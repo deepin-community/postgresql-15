@@ -1,8 +1,50 @@
-postgresql-15 (15.3-1deepin1) unstable; urgency=medium
+postgresql-15 (15.4-3) unstable; urgency=medium
 
-  * Apply patches from postgresql-14
+  * Stop building lib packages, postgresql-16 is in unstable.
+  * Use LLVM 15 for JIT support, 16 is not supported yet. (Closes: #1051881)
 
- -- Chang Yang <yangchang@deepin.org>  Wed 06 Sep 2023 2023 10:21:00 +0800
+ -- Christoph Berg <myon@debian.org>  Thu, 14 Sep 2023 09:28:43 +0200
+
+postgresql-15 (15.4-2) unstable; urgency=medium
+
+  * Disable jit on loong64; PG does not support LLVM 16 yet while LLVM
+    versions before 16 do not support loong64. (Closes: #1051385)
+  * Introduce build profile pkg.postgresql.nolibpkgs.
+
+ -- Christoph Berg <myon@debian.org>  Thu, 07 Sep 2023 11:45:32 +0200
+
+postgresql-15 (15.4-1) unstable; urgency=medium
+
+  * New upstream version.
+
+    + Disallow substituting a schema or owner name into an extension script if
+      the name contains a quote, backslash, or dollar sign (Noah Misch)
+
+      This restriction guards against SQL-injection hazards for trusted
+      extensions.
+
+      The PostgreSQL Project thanks Micah Gate, Valerie Woolard, Tim
+      Carey-Smith, and Christoph Berg for reporting this problem.
+      (CVE-2023-39417)
+
+    + Fix MERGE to enforce row security policies properly (Dean Rasheed)
+
+      When MERGE performs an UPDATE action, it should enforce any UPDATE or
+      SELECT RLS policies defined on the target table, to be consistent with
+      the way that a plain UPDATE with a WHERE clause works.  Instead it was
+      enforcing INSERT RLS policies for both INSERT and UPDATE actions.
+
+      In addition, when MERGE performs a DO NOTHING action, it applied the
+      target table's DELETE RLS policies to existing rows, even though those
+      rows are not being deleted.  While it's not a security problem, this
+      could result in unwanted errors.
+
+      The PostgreSQL Project thanks Dean Rasheed for reporting this problem.
+      (CVE-2023-39418)
+
+  * Test-Depend on tzdata-legacy | tzdata (<< 2023c-8).
+
+ -- Christoph Berg <myon@debian.org>  Tue, 08 Aug 2023 10:10:20 +0200
 
 postgresql-15 (15.3-1) experimental; urgency=medium
 
